@@ -1,15 +1,11 @@
-from PySide6.QtWidgets import QApplication
+# main.py
 
-from MainWindow import MainWindow
-
-#test git
-
-def main():
-    app = QApplication([])
-    window = MainWindow()
-    window.show()
-    app.exec()
+from presentation.qt.app import run_app
 
 
-if __name__ == '__main__':
+def main() -> None:
+    run_app()
+
+
+if __name__ == "__main__":
     main()
