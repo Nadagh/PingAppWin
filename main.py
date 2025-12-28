@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QApplication
 
 from MainWindow import MainWindow
 
+#test git
 
 def main():
     app = QApplication([])
