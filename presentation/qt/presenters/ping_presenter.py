@@ -56,14 +56,19 @@ class PingPresenter:
             if not status_item:
                 continue
 
-            if status.name == "PENDING":
-                status_item.setText("В процессе")
-                status_item.setBackground(QColor("#fff3cd"))  # мягкий жёлтый
+            if status.name == "SUCCESS":
+                status_item.setText("Успешно")
+                status_item.setBackground(QColor("#d1e7dd"))  # мягкий зелёный
+
+            elif status.name == "FAILURE":
+                status_item.setText("Нет ответа")
+                status_item.setBackground(QColor("#f8d7da"))  # мягкий красный
 
             elif status.name == "ERROR":
                 status_item.setText("Ошибка IP")
-                status_item.setBackground(QColor("#f8d7da"))  # мягкий красный
+                status_item.setBackground(QColor("#f8d7da"))
 
             elif status.name == "MISSING":
                 status_item.setText("Не указан IP")
-                status_item.setBackground(QColor("#e2e3e5"))  # нейтральный серо-бежевый
+                status_item.setBackground(QColor("#e2e3e5"))
+
