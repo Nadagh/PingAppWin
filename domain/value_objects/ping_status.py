@@ -8,3 +8,5 @@ class PingStatus(Enum):
     SUCCESS = auto()
     FAILURE = auto()
     ERROR = auto()
+    MISSING = auto()   # IP не указан
+

@@ -29,8 +29,9 @@ class TablePanel(QWidget):
         self.table.setItem(row, 0, QTableWidgetItem(""))
 
         status = QTableWidgetItem("Ожидание")
-        status.setBackground(QColor("#cccccc"))
+        status.setBackground(QColor("#d0d0d0"))  # серый: ожидание
         self.table.setItem(row, 1, status)
+
 
     def remove_rows(self, rows: list[int]) -> None:
         for row in sorted(rows, reverse=True):

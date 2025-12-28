@@ -17,7 +17,7 @@ class PingTab(QWidget):
         self.table_panel = TablePanel()
 
         # Presenter
-        use_case = PingTableUseCase(self)
+        use_case = PingTableUseCase()
         self.presenter = PingPresenter(self, use_case)
 
         layout = QVBoxLayout(self)
