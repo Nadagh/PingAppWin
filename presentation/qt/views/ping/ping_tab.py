@@ -28,6 +28,9 @@ class PingTab(QWidget):
         self.controls.add_btn.clicked.connect(self.table_panel.add_row)
         self.controls.remove_btn.clicked.connect(self._remove_selected)
         self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
+        self.controls.stop_btn.clicked.connect(self.presenter.on_stop_clicked)
+
+
 
         # минимум одна строка
         self.table_panel.add_row()

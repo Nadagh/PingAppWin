@@ -18,6 +18,12 @@ class ControlsPanel(QWidget):
         self.add_btn = QPushButton("Добавить")
         self.remove_btn = QPushButton("Удалить")
         self.start_btn = QPushButton("Ping")
+        self.stop_btn = QPushButton("Stop")
+        self.stop_btn.setEnabled(False)
+
+        self.parallel_input = QSpinBox()
+        self.parallel_input.setRange(1, 300)
+        self.parallel_input.setValue(50)
 
         layout = QHBoxLayout(self)
         layout.addWidget(count_label)
@@ -25,5 +31,9 @@ class ControlsPanel(QWidget):
         layout.addSpacing(20)
         layout.addWidget(self.add_btn)
         layout.addWidget(self.remove_btn)
+        layout.addWidget(QLabel("Параллельно:"))
+        layout.addWidget(self.parallel_input)
         layout.addStretch()
         layout.addWidget(self.start_btn)
+        layout.addWidget(self.stop_btn)
+

@@ -5,6 +5,7 @@ import threading
 from application.use_cases import AsyncPingTableUseCase
 from domain import PingStatus
 from presentation.qt.mappers import map_ping_status
+from presentation.qt.mappers.ping_status_mapper import COLOR_IDLE
 
 
 class PingPresenter:
@@ -24,23 +25,27 @@ class PingPresenter:
         """
 
         self.view = view
-        self.use_case = use_case
+        self._use_case = None
+        self._worker_thread = None
 
 
     def on_start_clicked(self) -> None:
         ip_values = self._collect_ip_values()
 
-        async_use_case = AsyncPingTableUseCase(
+        self._reset_statuses()
+        self._set_running(True)
+
+        self._use_case = AsyncPingTableUseCase(
                 on_result = self._on_async_result,
-                max_concurrent = 50,
+                max_concurrent = self.view.controls.parallel_input.value(),
                 )
 
-        thread = threading.Thread(
+        self._worker_thread = threading.Thread(
                 target = self._run_async_use_case,
-                args = (async_use_case, ip_values),
+                args = (self._use_case, ip_values),
                 daemon = True,
                 )
-        thread.start()
+        self._worker_thread.start()
 
 
     def _set_all_rows_pending(self) -> None:
@@ -89,4 +94,30 @@ class PingPresenter:
 
     def _run_async_use_case(self, use_case, ip_values: list[str]) -> None:
         asyncio.run(use_case.run(ip_values))
+        self._set_running(False)
+
+
+    def _reset_statuses(self) -> None:
+        table = self.view.table_panel.table
+        for row in range(table.rowCount()):
+            item = table.item(row, 1)
+            if item:
+                item.setText("Ожидание")
+                item.setBackground(COLOR_IDLE)
+
+
+    def _set_running(self, running: bool) -> None:
+        self.view.controls.start_btn.setEnabled(not running)
+        self.view.controls.stop_btn.setEnabled(running)
+
+
+    def on_stop_clicked(self) -> None:
+        if self._use_case:
+            self._use_case.cancel()
+        self._set_running(False)
+
+
+
+
+
 

@@ -6,9 +6,10 @@ from domain import PingStatus
 
 
 COLOR_SUCCESS = QColor("#d1e7dd")  # мягкий зелёный
-COLOR_WARNING = QColor("#fff3cd")  # мягкий жёлтый
 COLOR_ERROR = QColor("#f8d7da")  # мягкий красный
 COLOR_IDLE = QColor("#d0d0d0")  # серый (ожидание)
+COLOR_PENDING = QColor("#fff3cd")  # мягкий жёлтый
+
 
 
 class PingStatusViewModel:
@@ -24,24 +25,19 @@ class PingStatusViewModel:
 
 def map_ping_status(status: PingStatus) -> PingStatusViewModel:
     if status == PingStatus.SUCCESS:
-        return PingStatusViewModel(
-                text = "Успешно",
-                color = COLOR_SUCCESS,
-                )
+        return PingStatusViewModel("Успешно", COLOR_SUCCESS)
 
     if status == PingStatus.FAILURE:
-        return PingStatusViewModel(
-                text = "Нет ответа",
-                color = COLOR_ERROR,
-                )
+        return PingStatusViewModel("Нет ответа", COLOR_ERROR)
 
     if status in (PingStatus.ERROR, PingStatus.MISSING):
         return PingStatusViewModel(
-                text = "Ошибка IP" if status == PingStatus.ERROR else "Не указан IP",
-                color = COLOR_ERROR,
-                )
+            "Не указан IP" if status == PingStatus.MISSING else "Ошибка IP",
+            COLOR_ERROR,
+        )
 
-    return PingStatusViewModel(
-            text = "Ожидание",
-            color = COLOR_IDLE,
-            )
+    if status == PingStatus.PENDING:
+        return PingStatusViewModel("В процессе", COLOR_PENDING)
+
+    return PingStatusViewModel("Ожидание", COLOR_IDLE)
+
