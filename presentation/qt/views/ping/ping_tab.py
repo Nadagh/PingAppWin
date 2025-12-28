@@ -2,16 +2,23 @@
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
+from Application.use_cases.ping_table import PingTableUseCase
 from .controls_panel import ControlsPanel
 from .table_panel import TablePanel
+from ...presenters import PingPresenter
 
 
 class PingTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
+
         self.controls = ControlsPanel()
         self.table_panel = TablePanel()
+
+        # Presenter
+        use_case = PingTableUseCase(self)
+        self.presenter = PingPresenter(self, use_case)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.controls)
@@ -20,6 +27,7 @@ class PingTab(QWidget):
         # UI-связи
         self.controls.add_btn.clicked.connect(self.table_panel.add_row)
         self.controls.remove_btn.clicked.connect(self._remove_selected)
+        self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
 
         # минимум одна строка
         self.table_panel.add_row()
