@@ -1,5 +1,7 @@
 # presentation/qt/presenters/ping_presenter.py
-from PySide6.QtGui import QColor
+from domain import PingStatus
+from presentation.qt.mappers import map_ping_status
+
 
 
 class PingPresenter:
@@ -48,7 +50,7 @@ class PingPresenter:
         return values
 
 
-    def _apply_results(self, results: list[tuple[str, object]]) -> None:
+    def _apply_results(self, results: list[tuple[str, PingStatus]]) -> None:
         table = self.view.table_panel.table
 
         for row, (_, status) in enumerate(results):
@@ -56,19 +58,7 @@ class PingPresenter:
             if not status_item:
                 continue
 
-            if status.name == "SUCCESS":
-                status_item.setText("Успешно")
-                status_item.setBackground(QColor("#d1e7dd"))  # мягкий зелёный
-
-            elif status.name == "FAILURE":
-                status_item.setText("Нет ответа")
-                status_item.setBackground(QColor("#f8d7da"))  # мягкий красный
-
-            elif status.name == "ERROR":
-                status_item.setText("Ошибка IP")
-                status_item.setBackground(QColor("#f8d7da"))
-
-            elif status.name == "MISSING":
-                status_item.setText("Не указан IP")
-                status_item.setBackground(QColor("#e2e3e5"))
+            view_model = map_ping_status(status)
+            status_item.setText(view_model.text)
+            status_item.setBackground(view_model.color)
 
