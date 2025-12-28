@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QTabWidget,
     )
 
-from ConsoleTab import ConsoleTab
+from ConsoleTab.ConsoleTab import ConsoleTab
 from NetworkScanTab import NetworkScanTab
 from PingTab import PingTab
 

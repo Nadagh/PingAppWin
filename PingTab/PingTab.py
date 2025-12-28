@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QLabel, QSpinBox, QHeaderView
 )
 
-from PingWorker import PingWorker
+from Workers.PingWorker import PingWorker
 
 
 class PingTab(QWidget):

@@ -1,7 +1,7 @@
 import pytest
 
 import adresses
-import ping_tools
+from Tools import ping_tools
 
 
 def test_ping_to_int_no_arg_ok():

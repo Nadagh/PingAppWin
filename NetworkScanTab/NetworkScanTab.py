@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QLabel, QSpinBox, QHeaderView, QProgressBar
 )
 
-from AsyncPingWorker import AsyncPingWorker  # Асинхронный воркер пинга
+from Workers.AsyncPingWorker import AsyncPingWorker  # Асинхронный воркер пинга
 
 class NetworkScanTab(QWidget):
     def __init__(self):

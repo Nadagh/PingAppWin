@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QLabel, QSpinBox, QCheckBox
 )
 
-from PingWorker import PingWorker
+from Workers.PingWorker import PingWorker
 
 
 class ConsoleTab(QWidget):
