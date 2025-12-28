@@ -1,5 +1,4 @@
-# infrastructure/ping/__init__.py
-
 from .ping_executor import PingExecutor
+from .async_ping_executor import AsyncPingExecutor
 
-__all__ = ["PingExecutor"]
+__all__ = ["PingExecutor", "AsyncPingExecutor"]

@@ -1,7 +1,10 @@
 # presentation/qt/presenters/ping_presenter.py
+import asyncio
+import threading
+
+from application.use_cases import AsyncPingTableUseCase
 from domain import PingStatus
 from presentation.qt.mappers import map_ping_status
-
 
 
 class PingPresenter:
@@ -26,8 +29,18 @@ class PingPresenter:
 
     def on_start_clicked(self) -> None:
         ip_values = self._collect_ip_values()
-        results = self.use_case.prepare_ping(ip_values)
-        self._apply_results(results)
+
+        async_use_case = AsyncPingTableUseCase(
+                on_result = self._on_async_result,
+                max_concurrent = 50,
+                )
+
+        thread = threading.Thread(
+                target = self._run_async_use_case,
+                args = (async_use_case, ip_values),
+                daemon = True,
+                )
+        thread.start()
 
 
     def _set_all_rows_pending(self) -> None:
@@ -61,4 +74,19 @@ class PingPresenter:
             view_model = map_ping_status(status)
             status_item.setText(view_model.text)
             status_item.setBackground(view_model.color)
+
+
+    def _on_async_result(self, row: int, status: PingStatus) -> None:
+        table = self.view.table_panel.table
+        item = table.item(row, 1)
+        if not item:
+            return
+
+        vm = map_ping_status(status)
+        item.setText(vm.text)
+        item.setBackground(vm.color)
+
+
+    def _run_async_use_case(self, use_case, ip_values: list[str]) -> None:
+        asyncio.run(use_case.run(ip_values))
 
