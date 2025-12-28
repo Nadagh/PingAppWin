@@ -1,6 +1,6 @@
 class PingTableUseCase:
     """
-    Application-layer use case.
+    application-layer use case.
     Временно — без реального ping.
     """
 
@@ -10,7 +10,7 @@ class PingTableUseCase:
     def start_ping(self) -> None:
         """
         TODO:
-        Подключить Domain + Infrastructure.
+        Подключить domain + infrastructure.
         """
         table = self.view.table_panel.table
         for row in range(table.rowCount()):

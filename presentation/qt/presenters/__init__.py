@@ -1,5 +1,8 @@
-# presentation/qt/presenters/__init__.py
-
+from .console_presenter import ConsolePresenter
 from .ping_presenter import PingPresenter
 
-__all__ = ["PingPresenter"]
+
+__all__ = [
+        "PingPresenter",
+        "ConsolePresenter",
+        ]

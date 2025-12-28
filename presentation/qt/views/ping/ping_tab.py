@@ -2,7 +2,7 @@
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
-from Application.use_cases.ping_table import PingTableUseCase
+from application.use_cases.ping_table import PingTableUseCase
 from .controls_panel import ControlsPanel
 from .table_panel import TablePanel
 from ...presenters import PingPresenter

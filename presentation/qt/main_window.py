@@ -2,11 +2,9 @@
 
 from PySide6.QtWidgets import QMainWindow, QTabWidget
 
-from presentation.qt.views.ping import PingTab
-
-
 from presentation.qt.views.console import ConsoleTab
 from presentation.qt.views.network_scan import NetworkScanTab
+from presentation.qt.views.ping import PingTab
 
 
 class MainWindow(QMainWindow):

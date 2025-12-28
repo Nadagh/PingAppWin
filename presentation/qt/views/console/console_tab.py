@@ -2,6 +2,8 @@
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
+from application.use_cases.console_ping import ConsolePingUseCase
+from presentation.qt.presenters import ConsolePresenter
 from .controls_panel import ControlsPanel
 from .output_panel import OutputPanel
 
@@ -19,21 +21,14 @@ class ConsoleTab(QWidget):
 
         # UI-only поведение
         self.controls.infinite_checkbox.stateChanged.connect(
-            self._on_infinite_changed
-        )
-        self.controls.start_btn.clicked.connect(self._on_start_clicked)
+                self._on_infinite_changed
+                )
+
+        use_case = ConsolePingUseCase(self.output.append_line)
+        self.presenter = ConsolePresenter(self, use_case)
+
+        self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
+
 
     def _on_infinite_changed(self, state: int) -> None:
         self.controls.count_input.setEnabled(not bool(state))
-
-    def _on_start_clicked(self) -> None:
-        """
-        TODO:
-        Подключить ConsolePresenter.
-        Здесь должна быть:
-        - валидация ввода
-        - запуск use case
-        - подписка на поток вывода
-        """
-        self.output.clear()
-        self.output.append_line("Ожидание запуска ping...")
