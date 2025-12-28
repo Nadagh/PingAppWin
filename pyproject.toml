@@ -20,7 +20,8 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-    "pytest (>=9.0.2,<10.0.0)"
+    "pytest (>=9.0.2,<10.0.0)",
+    "pytest-asyncio (>=1.3.0,<2.0.0)"
 ]
 
 [tool.pytest.ini_options]
@@ -33,4 +34,4 @@ addopts = "-vv -s --tb=long -l"
 [tool.poetry]
 name = "myping-test"
 version = "0.1.0"
-package-mode = false
+package-mode = true
