@@ -19,9 +19,15 @@ class ConsolePingExecutor:
         encoding = "cp866" if system == "windows" else "utf-8"
 
         if system == "windows":
-            cmd = ["ping", ip] if count is None else ["ping", "-n", str(count), ip]
+            if count is None:
+                cmd = ["ping", "-t", ip]  # БЕСКОНЕЧНО
+            else:
+                cmd = ["ping", "-n", str(count), ip]
         else:
-            cmd = ["ping", ip] if count is None else ["ping", "-c", str(count), ip]
+            if count is None:
+                cmd = ["ping", ip]  # БЕСКОНЕЧНО
+            else:
+                cmd = ["ping", "-c", str(count), ip]
 
         try:
             self._process = subprocess.Popen(

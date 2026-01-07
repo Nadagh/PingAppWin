@@ -28,6 +28,7 @@ class ConsoleTab(QWidget):
         self.presenter = ConsolePresenter(self, use_case)
 
         self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
+        self.controls.stop_btn.clicked.connect(self.presenter.on_stop_clicked)
 
 
     def _on_infinite_changed(self, state: int) -> None:

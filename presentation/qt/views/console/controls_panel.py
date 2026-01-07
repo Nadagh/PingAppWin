@@ -21,7 +21,10 @@ class ControlsPanel(QWidget):
         self.count_input.setValue(4)
 
         self.infinite_checkbox = QCheckBox("Бесконечный ping")
+
         self.start_btn = QPushButton("Ping")
+        self.stop_btn = QPushButton("Stop")
+        self.stop_btn.setEnabled(False)
 
         layout = QHBoxLayout(self)
         layout.addWidget(ip_label)
@@ -30,3 +33,4 @@ class ControlsPanel(QWidget):
         layout.addWidget(self.count_input)
         layout.addWidget(self.infinite_checkbox)
         layout.addWidget(self.start_btn)
+        layout.addWidget(self.stop_btn)
