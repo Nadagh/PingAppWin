@@ -1,13 +1,14 @@
-# infrastructure/ping/console_ping_executor.py
-
-import subprocess
 import platform
+import signal
+import subprocess
+import time
 from typing import Callable, Optional
 
 
 class ConsolePingExecutor:
     def __init__(self) -> None:
         self._process: subprocess.Popen | None = None
+        self._stopped: bool = False
 
     def run(
         self,
@@ -20,14 +21,16 @@ class ConsolePingExecutor:
 
         if system == "windows":
             if count is None:
-                cmd = ["ping", "-t", ip]  # БЕСКОНЕЧНО
+                cmd = ["ping", "-t", ip]
             else:
                 cmd = ["ping", "-n", str(count), ip]
         else:
             if count is None:
-                cmd = ["ping", ip]  # БЕСКОНЕЧНО
+                cmd = ["ping", ip]
             else:
                 cmd = ["ping", "-c", str(count), ip]
+
+        self._stopped = False
 
         try:
             self._process = subprocess.Popen(
@@ -37,11 +40,16 @@ class ConsolePingExecutor:
                 text=True,
                 encoding=encoding,
                 errors="replace",
-                bufsize=1,
+                creationflags=(
+                    subprocess.CREATE_NEW_PROCESS_GROUP
+                    if system == "windows"
+                    else 0
+                ),
             )
 
             assert self._process.stdout is not None
 
+            # Читаем stdout до EOF
             for line in self._process.stdout:
                 on_output(line.rstrip())
 
@@ -50,6 +58,29 @@ class ConsolePingExecutor:
         except Exception as exc:
             on_output(f"Ошибка запуска ping: {exc}")
 
+        finally:
+            self._process = None
+            self._stopped = False
+
     def stop(self) -> None:
-        if self._process and self._process.poll() is None:
-            self._process.terminate()
+        if not self._process or self._stopped:
+            return
+
+        self._stopped = True
+        system = platform.system().lower()
+
+        try:
+            if system == "windows":
+                # 1. Мягкая остановка для статистики
+                self._process.send_signal(signal.CTRL_BREAK_EVENT)
+
+                # 2. Даём ping шанс завершиться
+                time.sleep(0.3)
+
+                # 3. Если всё ещё жив — убиваем
+                if self._process.poll() is None:
+                    self._process.terminate()
+            else:
+                self._process.send_signal(signal.SIGINT)
+        except Exception:
+            pass
