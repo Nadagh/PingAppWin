@@ -3,10 +3,6 @@ from infrastructure import ConsolePingExecutor
 
 
 class ConsolePingUseCase:
-    """
-    Application-layer use case для консольного ping.
-    """
-
     def __init__(self, output_callback) -> None:
         self._output = output_callback
         self._executor = ConsolePingExecutor()
@@ -22,15 +18,12 @@ class ConsolePingUseCase:
             self._output(str(exc))
             return
 
-        self._output(f"Запуск ping для {address.value}")
-
-        if count is None:
-            self._output("Режим: бесконечный")
-        else:
-            self._output(f"Количество пакетов: {count}")
-
+        # ВАЖНО: никаких служебных строк
         self._executor.run(
             ip=address.value,
             count=count,
             on_output=self._output,
         )
+
+    def stop(self) -> None:
+        self._executor.stop()

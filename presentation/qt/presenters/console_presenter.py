@@ -1,14 +1,13 @@
-class ConsolePresenter:
-    """
-    Presenter для ConsoleTab.
-    """
+import threading
 
+
+class ConsolePresenter:
     def __init__(self, view, use_case) -> None:
         self.view = view
         self.use_case = use_case
+        self._thread: threading.Thread | None = None
 
     def on_start_clicked(self) -> None:
-        # подготовка UI
         self.view.output.clear()
         self.view.controls.start_btn.setEnabled(False)
 
@@ -19,8 +18,18 @@ class ConsolePresenter:
             else self.view.controls.count_input.value()
         )
 
+        self._thread = threading.Thread(
+            target=self._run,
+            args=(ip, count),
+            daemon=True,
+        )
+        self._thread.start()
+
+    def _run(self, ip: str, count: int | None) -> None:
         try:
             self.use_case.start_ping(ip=ip, count=count)
         finally:
-            # синхронный ping → разблокируем сразу после завершения
             self.view.controls.start_btn.setEnabled(True)
+
+    def on_stop_clicked(self) -> None:
+        self.use_case.stop()

@@ -6,19 +6,8 @@ from typing import Callable, Optional
 
 
 class ConsolePingExecutor:
-    """
-    Infrastructure-level executor для консольного ping.
-
-    Ответственность:
-    - запуск системной утилиты ping
-    - построчное чтение stdout
-    - передача строк через callback
-
-    НЕ знает:
-    - Domain
-    - Qt
-    - Presenter
-    """
+    def __init__(self) -> None:
+        self._process: subprocess.Popen | None = None
 
     def run(
         self,
@@ -26,41 +15,35 @@ class ConsolePingExecutor:
         count: Optional[int],
         on_output: Callable[[str], None],
     ) -> None:
-        """
-        Запускает ping и передаёт вывод построчно.
-
-        :param ip: IP адрес (строка, предполагается валидной)
-        :param count: количество пакетов или None для бесконечного режима
-        :param on_output: callback для каждой строки stdout
-        """
         system = platform.system().lower()
+        encoding = "cp866" if system == "windows" else "utf-8"
 
         if system == "windows":
-            if count is None:
-                cmd = ["ping", ip]
-            else:
-                cmd = ["ping", "-n", str(count), ip]
+            cmd = ["ping", ip] if count is None else ["ping", "-n", str(count), ip]
         else:
-            if count is None:
-                cmd = ["ping", ip]
-            else:
-                cmd = ["ping", "-c", str(count), ip]
+            cmd = ["ping", ip] if count is None else ["ping", "-c", str(count), ip]
 
         try:
-            process = subprocess.Popen(
+            self._process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding=encoding,
+                errors="replace",
                 bufsize=1,
             )
 
-            assert process.stdout is not None
+            assert self._process.stdout is not None
 
-            for line in process.stdout:
+            for line in self._process.stdout:
                 on_output(line.rstrip())
 
-            process.wait()
+            self._process.wait()
 
         except Exception as exc:
             on_output(f"Ошибка запуска ping: {exc}")
+
+    def stop(self) -> None:
+        if self._process and self._process.poll() is None:
+            self._process.terminate()
