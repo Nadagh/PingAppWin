@@ -1,4 +1,6 @@
-# application/use_cases/console_ping.py
+from domain import IPAddress
+from infrastructure import ConsolePingExecutor
+
 
 class ConsolePingUseCase:
     """
@@ -6,19 +8,29 @@ class ConsolePingUseCase:
     """
 
     def __init__(self, output_callback) -> None:
-        self.output_callback = output_callback
+        self._output = output_callback
+        self._executor = ConsolePingExecutor()
 
     def start_ping(self, ip: str, count: int | None) -> None:
-        """
-        TODO:
-        Подключить Domain + Infrastructure (реальный ping).
-        """
         if not ip:
-            self.output_callback("IP адрес не задан")
+            self._output("Ошибка: IP адрес не задан")
             return
 
-        self.output_callback(f"Запуск ping для {ip}")
+        try:
+            address = IPAddress(ip)
+        except ValueError as exc:
+            self._output(str(exc))
+            return
+
+        self._output(f"Запуск ping для {address.value}")
+
         if count is None:
-            self.output_callback("Режим: бесконечный")
+            self._output("Режим: бесконечный")
         else:
-            self.output_callback(f"Количество пакетов: {count}")
+            self._output(f"Количество пакетов: {count}")
+
+        self._executor.run(
+            ip=address.value,
+            count=count,
+            on_output=self._output,
+        )

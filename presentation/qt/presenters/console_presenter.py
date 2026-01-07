@@ -1,5 +1,3 @@
-# presentation/qt/presenters/console_presenter.py
-
 class ConsolePresenter:
     """
     Presenter для ConsoleTab.
@@ -10,6 +8,10 @@ class ConsolePresenter:
         self.use_case = use_case
 
     def on_start_clicked(self) -> None:
+        # подготовка UI
+        self.view.output.clear()
+        self.view.controls.start_btn.setEnabled(False)
+
         ip = self.view.controls.ip_input.text().strip()
         count = (
             None
@@ -17,7 +19,8 @@ class ConsolePresenter:
             else self.view.controls.count_input.value()
         )
 
-        self.use_case.start_ping(ip=ip, count=count)
-
-    def on_output(self, line: str) -> None:
-        self.view.output.append_line(line)
+        try:
+            self.use_case.start_ping(ip=ip, count=count)
+        finally:
+            # синхронный ping → разблокируем сразу после завершения
+            self.view.controls.start_btn.setEnabled(True)
