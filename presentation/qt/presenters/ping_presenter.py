@@ -38,6 +38,7 @@ class PingPresenter:
         self._use_case = AsyncPingTableUseCase(
                 on_result = self._on_async_result,
                 max_concurrent = self.view.controls.parallel_input.value(),
+                timeout_ms = self.view.controls.timeout_input.value(),
                 )
 
         self._worker_thread = threading.Thread(

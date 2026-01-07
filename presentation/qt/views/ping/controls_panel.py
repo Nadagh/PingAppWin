@@ -25,6 +25,12 @@ class ControlsPanel(QWidget):
         self.parallel_input.setRange(1, 300)
         self.parallel_input.setValue(50)
 
+        timeout_label = QLabel("Таймаут (мс):")
+        self.timeout_input = QSpinBox()
+        self.timeout_input.setRange(100, 10000)
+        self.timeout_input.setValue(1000)
+        self.timeout_input.setSingleStep(100)
+
         layout = QHBoxLayout(self)
         layout.addWidget(count_label)
         layout.addWidget(self.count_input)
@@ -33,6 +39,9 @@ class ControlsPanel(QWidget):
         layout.addWidget(self.remove_btn)
         layout.addWidget(QLabel("Параллельно:"))
         layout.addWidget(self.parallel_input)
+        layout.addSpacing(10)
+        layout.addWidget(timeout_label)
+        layout.addWidget(self.timeout_input)
         layout.addStretch()
         layout.addWidget(self.start_btn)
         layout.addWidget(self.stop_btn)

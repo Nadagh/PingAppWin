@@ -1,16 +1,20 @@
-# application/use_cases/async_ping_table.py
-
 import asyncio
 
 from domain import IPAddress, PingStatus
-from domain.services import status_from_exit_code
 from infrastructure import AsyncPingExecutor
+from application.services import analyze_ping_result
 
 
 class AsyncPingTableUseCase:
-    def __init__(self, on_result, max_concurrent: int = 50) -> None:
+    def __init__(
+        self,
+        on_result,
+        max_concurrent: int = 50,
+        timeout_ms: int = 1000,
+    ) -> None:
         self._executor = AsyncPingExecutor()
         self._on_result = on_result
+        self._timeout_ms = timeout_ms
         self._sem = asyncio.Semaphore(max_concurrent)
         self._cancelled = False
 
@@ -41,9 +45,14 @@ class AsyncPingTableUseCase:
             if self._cancelled:
                 return
 
-            # ВАЖНО: статус "В процессе"
+            # В процессе
             self._on_result(row, PingStatus.PENDING)
 
-            exit_code = await self._executor.ping(ip.value, count=1)
-            status = status_from_exit_code(exit_code)
+            exit_code, output = await self._executor.ping_with_output(
+                ip=ip.value,
+                count=1,
+                timeout_ms=self._timeout_ms,
+            )
+
+            status = analyze_ping_result(exit_code, output)
             self._on_result(row, status)

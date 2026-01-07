@@ -1,26 +1,43 @@
 import asyncio
 import platform
+from typing import List, Tuple
 
 
 class AsyncPingExecutor:
     """
     Асинхронный executor ping через ОС.
-    Возвращает exit code.
+    Возвращает exit code и stdout.
     """
 
-    async def ping(self, ip: str, count: int = 1) -> int:
+    async def ping_with_output(
+        self,
+        ip: str,
+        count: int = 1,
+        timeout_ms: int = 1000,
+    ) -> Tuple[int, List[str]]:
         system = platform.system().lower()
+
         if system == "windows":
-            cmd = ["ping", "-n", str(count), ip]
+            cmd = ["ping", "-n", str(count), "-w", str(timeout_ms), ip]
         else:
-            cmd = ["ping", "-c", str(count), ip]
+            timeout_s = max(1, timeout_ms // 1000)
+            cmd = ["ping", "-c", str(count), "-W", str(timeout_s), ip]
 
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
             )
-            return await proc.wait()
+
+            output: list[str] = []
+
+            assert proc.stdout is not None
+            async for line in proc.stdout:
+                output.append(line.decode(errors="replace").strip())
+
+            exit_code = await proc.wait()
+            return exit_code, output
+
         except Exception:
-            return 2
+            return 2, []
