@@ -1,5 +1,7 @@
 import threading
 
+from application.services import classify_console_line
+
 
 class ConsolePresenter:
     def __init__(self, view, use_case) -> None:
@@ -42,3 +44,8 @@ class ConsolePresenter:
     def _set_running(self, running: bool) -> None:
         self.view.controls.start_btn.setEnabled(not running)
         self.view.controls.stop_btn.setEnabled(running)
+
+
+    def on_output(self, line: str) -> None:
+        line_type = classify_console_line(line)
+        self.view.output.append_line(line, line_type)

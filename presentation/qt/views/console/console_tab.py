@@ -12,6 +12,7 @@ class ConsoleTab(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
+        self.presenter = None
         self.controls = ControlsPanel()
         self.output = OutputPanel()
 
@@ -24,8 +25,9 @@ class ConsoleTab(QWidget):
                 self._on_infinite_changed
                 )
 
-        use_case = ConsolePingUseCase(self.output.append_line)
-        self.presenter = ConsolePresenter(self, use_case)
+        self.presenter = ConsolePresenter(self, None)
+        use_case = ConsolePingUseCase(self.presenter.on_output)
+        self.presenter.use_case = use_case
 
         self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
         self.controls.stop_btn.clicked.connect(self.presenter.on_stop_clicked)

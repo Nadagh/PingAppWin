@@ -14,7 +14,8 @@ class IPAddress:
         try:
             self._ip = ipaddress.ip_address(value)
         except ValueError:
-            raise ValueError(f"Invalid IP address: {value}")
+            raise ValueError("INVALID_IP")
+
 
     @property
     def value(self) -> str:
