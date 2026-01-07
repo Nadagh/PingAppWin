@@ -10,42 +10,47 @@ class ConsolePingExecutor:
         self._process: subprocess.Popen | None = None
         self._stopped: bool = False
 
+
     def run(
-        self,
-        ip: str,
-        count: Optional[int],
-        on_output: Callable[[str], None],
-    ) -> None:
+            self,
+            ip: str,
+            count: Optional[int],
+            timeout_ms: int,
+            on_output: Callable[[str], None],
+            ) -> None:
+
         system = platform.system().lower()
         encoding = "cp866" if system == "windows" else "utf-8"
 
         if system == "windows":
             if count is None:
-                cmd = ["ping", "-t", ip]
+                cmd = ["ping", "-t", "-w", str(timeout_ms), ip]
             else:
-                cmd = ["ping", "-n", str(count), ip]
+                cmd = ["ping", "-n", str(count), "-w", str(timeout_ms), ip]
+
         else:
+            timeout_s = max(1, timeout_ms // 1000)
             if count is None:
-                cmd = ["ping", ip]
+                cmd = ["ping", "-W", str(timeout_s), ip]
             else:
-                cmd = ["ping", "-c", str(count), ip]
+                cmd = ["ping", "-c", str(count), "-W", str(timeout_s), ip]
 
         self._stopped = False
 
         try:
             self._process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                encoding=encoding,
-                errors="replace",
-                creationflags=(
-                    subprocess.CREATE_NEW_PROCESS_GROUP
-                    if system == "windows"
-                    else 0
-                ),
-            )
+                    cmd,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.STDOUT,
+                    text = True,
+                    encoding = encoding,
+                    errors = "replace",
+                    creationflags = (
+                            subprocess.CREATE_NEW_PROCESS_GROUP
+                            if system == "windows"
+                            else 0
+                    ),
+                    )
 
             assert self._process.stdout is not None
 
@@ -61,6 +66,7 @@ class ConsolePingExecutor:
         finally:
             self._process = None
             self._stopped = False
+
 
     def stop(self) -> None:
         if not self._process or self._stopped:

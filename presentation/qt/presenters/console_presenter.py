@@ -31,7 +31,13 @@ class ConsolePresenter:
                     if self.view.controls.infinite_checkbox.isChecked()
                     else self.view.controls.count_input.value()
             )
-            self.use_case.start_ping(ip = ip, count = count)
+            timeout = self.view.controls.timeout_input.value()
+            self.use_case.start_ping(
+                    ip = ip,
+                    count = count,
+                    timeout_ms = timeout,
+                    )
+
         finally:
             self._set_running(False)
 

@@ -8,7 +8,7 @@ class ConsolePingUseCase:
         self._executor = ConsolePingExecutor()
 
 
-    def start_ping(self, ip: str, count: int | None) -> None:
+    def start_ping(self, ip: str, count: int | None, timeout_ms: int) -> None:
         if not ip:
             self._output("Ошибка: IP адрес не задан")
             return
@@ -23,6 +23,7 @@ class ConsolePingUseCase:
         self._executor.run(
                 ip = address.value,
                 count = count,
+                timeout_ms = timeout_ms,
                 on_output = self._output,
                 )
 

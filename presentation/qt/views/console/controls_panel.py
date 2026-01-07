@@ -13,7 +13,7 @@ class ControlsPanel(QWidget):
 
         ip_label = QLabel("IP адрес:")
         self.ip_input = QLineEdit()
-        self.ip_input.setPlaceholderText("например: 8.8.8.8")
+        self.ip_input.setPlaceholderText("8.8.8.8")
 
         count_label = QLabel("Количество запросов:")
         self.count_input = QSpinBox()
@@ -26,11 +26,19 @@ class ControlsPanel(QWidget):
         self.stop_btn = QPushButton("Stop")
         self.stop_btn.setEnabled(False)
 
+        timeout_label = QLabel("Таймаут (мс):")
+        self.timeout_input = QSpinBox()
+        self.timeout_input.setRange(100, 10000)
+        self.timeout_input.setValue(1000)
+        self.timeout_input.setSingleStep(100)
+
         layout = QHBoxLayout(self)
         layout.addWidget(ip_label)
         layout.addWidget(self.ip_input)
         layout.addWidget(count_label)
         layout.addWidget(self.count_input)
         layout.addWidget(self.infinite_checkbox)
+        layout.addWidget(timeout_label)
+        layout.addWidget(self.timeout_input)
         layout.addWidget(self.start_btn)
         layout.addWidget(self.stop_btn)
