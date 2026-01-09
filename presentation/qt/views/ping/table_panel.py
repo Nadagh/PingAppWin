@@ -6,13 +6,16 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QColor
 
+from presentation.qt.mappers.ping_status_mapper import COLOR_IDLE
+from presentation.qt.strings import PING_TABLE_HEADERS, STATUS_IDLE
+
 
 class TablePanel(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
         self.table = QTableWidget(0, 2)
-        self.table.setHorizontalHeaderLabels(["IP адрес", "Статус"])
+        self.table.setHorizontalHeaderLabels(PING_TABLE_HEADERS)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
 
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
@@ -28,8 +31,8 @@ class TablePanel(QWidget):
 
         self.table.setItem(row, 0, QTableWidgetItem(""))
 
-        status = QTableWidgetItem("Ожидание")
-        status.setBackground(QColor("#d0d0d0"))  # серый: ожидание
+        status = QTableWidgetItem(STATUS_IDLE)
+        status.setBackground(QColor(COLOR_IDLE))  # серый: ожидание
         self.table.setItem(row, 1, status)
 
 

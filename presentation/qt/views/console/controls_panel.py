@@ -3,30 +3,33 @@
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout,
     QLabel, QLineEdit, QSpinBox,
-    QPushButton, QCheckBox
-)
+    QPushButton, QCheckBox,
+    )
+
+from presentation.qt.strings import LABEL_ADDRESS, CHECKBOX_INFINITE, BTN_START, BTN_STOP
+from presentation.qt.strings.common import LABEL_TIMEOUT, LABEL_COUNT
 
 
 class ControlsPanel(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        ip_label = QLabel("IP адрес:")
+        ip_label = QLabel(LABEL_ADDRESS + ":")
         self.ip_input = QLineEdit()
         self.ip_input.setPlaceholderText("8.8.8.8")
 
-        count_label = QLabel("Запросов:")
+        count_label = QLabel(LABEL_COUNT)
         self.count_input = QSpinBox()
         self.count_input.setRange(1, 10000)
         self.count_input.setValue(4)
 
-        self.infinite_checkbox = QCheckBox("Бесконечный ping")
+        self.infinite_checkbox = QCheckBox(CHECKBOX_INFINITE)
 
-        self.start_btn = QPushButton("Ping")
-        self.stop_btn = QPushButton("Stop")
+        self.start_btn = QPushButton(BTN_START)
+        self.stop_btn = QPushButton(BTN_STOP)
         self.stop_btn.setEnabled(False)
 
-        timeout_label = QLabel("Таймаут (мс):")
+        timeout_label = QLabel(LABEL_TIMEOUT)
         self.timeout_input = QSpinBox()
         self.timeout_input.setRange(100, 10000)
         self.timeout_input.setValue(1000)

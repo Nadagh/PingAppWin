@@ -5,6 +5,7 @@ from application.use_cases import AsyncPingTableUseCase
 from domain import PingResultStatus
 from presentation.qt.mappers import map_ping_result_status
 from presentation.qt.mappers.ping_status_mapper import COLOR_IDLE
+from presentation.qt.strings import STATUS_IDLE
 
 
 class PingPresenter:
@@ -84,7 +85,7 @@ class PingPresenter:
         for row in range(table.rowCount()):
             item = table.item(row, 1)
             if item:
-                item.setText("Ожидание")
+                item.setText(STATUS_IDLE)
                 item.setBackground(COLOR_IDLE)
 
     def _set_running(self, running: bool) -> None:

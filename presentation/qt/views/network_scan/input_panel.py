@@ -2,6 +2,8 @@
 
 from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout
 
+from presentation.qt.strings import SCAN_INPUT_PLACEHOLDER
+
 
 class InputPanel(QWidget):
     def __init__(self) -> None:
@@ -10,12 +12,7 @@ class InputPanel(QWidget):
         self.setMaximumHeight(60)
 
         self.input_edit = QTextEdit()
-        self.input_edit.setPlaceholderText(
-            "150.102.95.5-100\n"
-            "150.102.1-255.25-50\n"
-            "150.102.0.0/16\n"
-            "150.102.0.0 - 150.102.255.255"
-        )
+        self.input_edit.setPlaceholderText(SCAN_INPUT_PLACEHOLDER)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.input_edit)

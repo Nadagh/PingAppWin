@@ -5,17 +5,19 @@ from PySide6.QtWidgets import (
     QTableWidget, QHeaderView
 )
 
+from presentation.qt.strings import TABLE_SUCCESS_TITLE, TABLE_FAIL_TITLE
+
 
 class TablesPanel(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
         self.success = QTableWidget(0, 1)
-        self.success.setHorizontalHeaderLabels(["Успешно"])
+        self.success.setHorizontalHeaderLabels([TABLE_SUCCESS_TITLE])
         self.success.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.fail = QTableWidget(0, 1)
-        self.fail.setHorizontalHeaderLabels(["Нет ответа"])
+        self.fail.setHorizontalHeaderLabels([TABLE_FAIL_TITLE])
         self.fail.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         layout = QHBoxLayout(self)

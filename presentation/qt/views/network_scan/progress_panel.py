@@ -5,6 +5,8 @@ from PySide6.QtWidgets import (
     QLabel, QProgressBar, QSizePolicy
 )
 
+from presentation.qt.strings import LABEL_PROGRESS_INITIAL
+
 
 class ProgressPanel(QWidget):
     def __init__(self) -> None:
@@ -13,7 +15,7 @@ class ProgressPanel(QWidget):
         self.setMinimumHeight(40)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        self.label = QLabel("Прогресс: 0 / 0")
+        self.label = QLabel(LABEL_PROGRESS_INITIAL)
 
         self.bar = QProgressBar()
         self.bar.setMaximumHeight(20)
@@ -38,5 +40,5 @@ class ProgressPanel(QWidget):
         layout.addWidget(self.bar)
 
     def reset(self) -> None:
-        self.label.setText("Прогресс: 0 / 0")
+        self.label.setText(LABEL_PROGRESS_INITIAL)
         self.bar.setValue(0)
