@@ -2,8 +2,9 @@
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
-from .input_panel import InputPanel
+from presentation.qt.presenters import NetworkScanPresenter
 from .controls_panel import ControlsPanel
+from .input_panel import InputPanel
 from .progress_panel import ProgressPanel
 from .tables_panel import TablesPanel
 
@@ -23,25 +24,7 @@ class NetworkScanTab(QWidget):
         layout.addWidget(self.progress)
         layout.addWidget(self.tables, 1)
 
-        self.controls.start_btn.clicked.connect(self._on_start_clicked)
-        self.controls.stop_btn.clicked.connect(self._on_stop_clicked)
+        self.presenter = NetworkScanPresenter(self)
 
-    def _on_start_clicked(self) -> None:
-        """
-        TODO:
-        Подключить NetworkScanPresenter.
-        Здесь должно быть:
-        - разбор ввода диапазонов
-        - запуск use case сканирования
-        - блокировка/разблокировка кнопок
-        - инициализация прогресса
-        """
-        self.tables.clear()
-        self.progress.reset()
-
-    def _on_stop_clicked(self) -> None:
-        """
-        TODO:
-        Остановить текущий процесс сканирования через Presenter.
-        """
-        pass
+        self.controls.start_btn.clicked.connect(self.presenter.on_start_clicked)
+        self.controls.stop_btn.clicked.connect(self.presenter.on_stop_clicked)
