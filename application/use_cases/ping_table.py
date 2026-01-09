@@ -6,12 +6,12 @@ from domain.services import status_from_exit_code
 from infrastructure import PingExecutor
 
 
-
 class PingTableUseCase:
     """
     Application-layer use case для PingTab.
     Связывает Presenter ↔ Domain.
     """
+
 
     def __init__(self) -> None:
         self.executor = PingExecutor()
@@ -31,9 +31,13 @@ class PingTableUseCase:
                 results.append((value, PingStatus.ERROR))
                 continue
 
-            exit_code = self.executor.ping(ip.value, count = 1)
+            try:
+                exit_code = self.executor.ping(ip.value, count = 1)
+            except Exception:
+                results.append((value, PingStatus.ERROR))
+                continue
+
             status = status_from_exit_code(exit_code)
             results.append((ip.value, status))
 
         return results
-
