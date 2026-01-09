@@ -15,7 +15,7 @@ class ControlsPanel(QWidget):
         self.ip_input = QLineEdit()
         self.ip_input.setPlaceholderText("8.8.8.8")
 
-        count_label = QLabel("Количество запросов:")
+        count_label = QLabel("Запросов:")
         self.count_input = QSpinBox()
         self.count_input.setRange(1, 10000)
         self.count_input.setValue(4)

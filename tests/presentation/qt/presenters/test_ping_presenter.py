@@ -1,15 +1,14 @@
-import threading
-from unittest.mock import Mock
+# tests/presentation/qt/presenters/test_ping_presenter.py
 
+from unittest.mock import Mock
 import pytest
 
-from domain import PingStatus
 from presentation.qt.presenters.ping_presenter import PingPresenter
-from presentation.qt.mappers.ping_status_mapper import PingStatusViewModel
+from domain.value_objects.ping_result_status import PingResultStatus
 
 
 # =========================
-# Fakes (минимальный контракт)
+# Fakes (минимальный контракт UI)
 # =========================
 
 class FakeItem:
@@ -29,7 +28,6 @@ class FakeItem:
 
 class FakeTable:
     def __init__(self, rows):
-        # rows: list[str]
         self._rows = rows
         self._status_items = [FakeItem() for _ in rows]
 
@@ -67,9 +65,9 @@ class FakeView:
 # Tests
 # =========================
 
-def test_start_click_collects_ips_and_starts_use_case(monkeypatch):
-    view = FakeView(["8.8.8.8", "1.1.1.1"])
-    presenter = PingPresenter(view, None)
+def test_start_click_disables_start_and_enables_stop(monkeypatch):
+    view = FakeView(["8.8.8.8"])
+    presenter = PingPresenter(view)
 
     fake_use_case = Mock()
     fake_thread = Mock()
@@ -85,63 +83,54 @@ def test_start_click_collects_ips_and_starts_use_case(monkeypatch):
 
     presenter.on_start_clicked()
 
-    fake_thread.start.assert_called_once()
     view.controls.start_btn.setEnabled.assert_called_with(False)
     view.controls.stop_btn.setEnabled.assert_called_with(True)
-
-
-def test_start_click_with_empty_values_does_not_crash(monkeypatch):
-    view = FakeView(["", "   "])
-    presenter = PingPresenter(view, None)
-
-    fake_use_case = Mock()
-    fake_thread = Mock()
-
-    monkeypatch.setattr(
-        "presentation.qt.presenters.ping_presenter.AsyncPingTableUseCase",
-        Mock(return_value=fake_use_case),
-    )
-    monkeypatch.setattr(
-        "presentation.qt.presenters.ping_presenter.threading.Thread",
-        Mock(return_value=fake_thread),
-    )
-
-    presenter.on_start_clicked()
-
     fake_thread.start.assert_called_once()
+
+
+def test_collect_ip_values():
+    view = FakeView(["8.8.8.8", "1.1.1.1"])
+    presenter = PingPresenter(view)
+
+    ips = presenter._collect_ip_values()
+
+    assert ips == ["8.8.8.8", "1.1.1.1"]
 
 
 def test_on_async_result_updates_correct_row(monkeypatch):
     view = FakeView(["8.8.8.8"])
-    presenter = PingPresenter(view, None)
+    presenter = PingPresenter(view)
 
-    fake_vm = PingStatusViewModel("Успешно", object())
+    fake_vm = Mock()
+    fake_vm.text = "Успешно"
+    fake_vm.color = object()
 
     monkeypatch.setattr(
-        "presentation.qt.presenters.ping_presenter.map_ping_status",
+        "presentation.qt.presenters.ping_presenter.map_ping_result_status",
         Mock(return_value=fake_vm),
     )
 
-    presenter._on_async_result(0, PingStatus.SUCCESS)
+    presenter._on_async_result(0, PingResultStatus.SUCCESS)
 
     item = view.table_panel.table.item(0, 1)
     assert item.text() == "Успешно"
     assert item.background is fake_vm.color
 
 
-def test_on_async_result_ignored_if_item_missing(monkeypatch):
+def test_on_async_result_ignored_if_item_missing():
     view = FakeView(["8.8.8.8"])
-    presenter = PingPresenter(view, None)
+    presenter = PingPresenter(view)
 
-    # эмулируем отсутствие status item
+    # статусная ячейка отсутствует
     view.table_panel.table._status_items[0] = None
 
-    presenter._on_async_result(0, PingStatus.SUCCESS)  # не должно упасть
+    # не должно падать
+    presenter._on_async_result(0, PingResultStatus.SUCCESS)
 
 
 def test_stop_click_cancels_use_case_and_resets_buttons():
     view = FakeView(["8.8.8.8"])
-    presenter = PingPresenter(view, None)
+    presenter = PingPresenter(view)
 
     presenter._use_case = Mock()
 

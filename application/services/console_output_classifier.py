@@ -23,12 +23,15 @@ ERROR_MARKERS = (
     "unreachable",
     "сбой",
     "не удается",
+    "не удалось обнаружить",
+    "проверьте имя узла",
     "could not find host",
     "ошибка",
     "недоступен",
     "неверный ip",
     "invalid ip",
 )
+
 
 WARNING_MARKERS = (
     "loss",

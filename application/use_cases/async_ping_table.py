@@ -1,62 +1,76 @@
 import asyncio
+from typing import Callable
 
-from domain import IPAddress, PingStatus
-from infrastructure import AsyncPingExecutor
-from application.services import analyze_ping_result
+from domain import IPAddress
+from domain.value_objects.ping_result_status import PingResultStatus
+from application.services.ping_result_analyzer import analyze_ping_result
+from infrastructure.ping.async_ping_executor import AsyncPingExecutor
 
 
 class AsyncPingTableUseCase:
     def __init__(
         self,
-        on_result,
-        max_concurrent: int = 50,
+        on_result: Callable[[int, PingResultStatus], None],
+        max_concurrent: int = 5,
         timeout_ms: int = 1000,
     ) -> None:
-        self._executor = AsyncPingExecutor()
         self._on_result = on_result
+        self._max_concurrent = max_concurrent
         self._timeout_ms = timeout_ms
-        self._sem = asyncio.Semaphore(max_concurrent)
         self._cancelled = False
 
     def cancel(self) -> None:
         self._cancelled = True
 
     async def run(self, ip_values: list[str]) -> None:
-        tasks = []
-        for idx, value in enumerate(ip_values):
-            tasks.append(asyncio.create_task(self._handle_one(idx, value)))
-        await asyncio.gather(*tasks)
+        semaphore = asyncio.Semaphore(self._max_concurrent)
 
-    async def _handle_one(self, row: int, value: str) -> None:
+        tasks = [
+            asyncio.create_task(
+                self._process_one(row, ip, semaphore)
+            )
+            for row, ip in enumerate(ip_values)
+        ]
+
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def _process_one(
+        self,
+        row: int,
+        raw_ip: str,
+        semaphore: asyncio.Semaphore,
+    ) -> None:
         if self._cancelled:
             return
 
-        if not value:
-            self._on_result(row, PingStatus.MISSING)
+        if not raw_ip.strip():
+            self._on_result(row, PingResultStatus.MISSING_ADDRESS)
             return
 
         try:
-            ip = IPAddress(value)
+            IPAddress(raw_ip)
         except ValueError:
-            self._on_result(row, PingStatus.ERROR)
+            self._on_result(row, PingResultStatus.INVALID_ADDRESS)
             return
 
-        async with self._sem:
+        self._on_result(row, PingResultStatus.PENDING)
+
+        async with semaphore:
             if self._cancelled:
                 return
 
-            # В процессе
-            self._on_result(row, PingStatus.PENDING)
+            executor = AsyncPingExecutor()
 
-            exit_code, output = await self._executor.ping_with_output(
-                ip=ip.value,
-                count=1,
-                timeout_ms=self._timeout_ms,
-            )
+            try:
+                exit_code, output = await executor.ping_with_output(
+                    raw_ip,
+                    count=1,
+                    timeout_ms=self._timeout_ms,
+                )
+            except Exception:
+                self._on_result(row, PingResultStatus.ERROR)
+                return
 
-            status = analyze_ping_result(
-                    stdout = "\n".join(output),
-                    exit_code = exit_code,
-                    )
-
-            self._on_result(row, status)
+        stdout = "\n".join(output)
+        status = analyze_ping_result(stdout, exit_code)
+        self._on_result(row, status)

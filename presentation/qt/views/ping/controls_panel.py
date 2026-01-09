@@ -10,7 +10,7 @@ class ControlsPanel(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        count_label = QLabel("Количество запросов:")
+        count_label = QLabel("Запросов:")
         self.count_input = QSpinBox()
         self.count_input.setRange(1, 10000)
         self.count_input.setValue(4)

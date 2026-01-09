@@ -9,18 +9,24 @@ from application.services.console_line_type import ConsoleLineType
 @pytest.mark.parametrize(
     "text, expected",
     [
-        # --- SYSTEM ---
+        # =====================
+        # SYSTEM
+        # =====================
         ("Обмен пакетами с 8.8.8.8", ConsoleLineType.SYSTEM),
         ("Ping statistics for 8.8.8.8", ConsoleLineType.SYSTEM),
         ("Control + Break", ConsoleLineType.SYSTEM),
         ("Режим: бесконечный", ConsoleLineType.SYSTEM),
 
-        # --- SUCCESS ---
+        # =====================
+        # SUCCESS
+        # =====================
         ("Reply from 8.8.8.8: bytes=32 time=20ms TTL=117", ConsoleLineType.SUCCESS),
         ("bytes=32 time=1ms ttl=64", ConsoleLineType.SUCCESS),
         ("число байт = 32", ConsoleLineType.SUCCESS),
 
-        # --- ERROR ---
+        # =====================
+        # ERROR
+        # =====================
         ("Request timed out.", ConsoleLineType.ERROR),
         ("Destination host unreachable.", ConsoleLineType.ERROR),
         ("Заданный узел недоступен.", ConsoleLineType.ERROR),
@@ -28,11 +34,19 @@ from application.services.console_line_type import ConsoleLineType
         ("Ошибка", ConsoleLineType.ERROR),
         ("Invalid IP address", ConsoleLineType.ERROR),
 
-        # --- WARNING ---
+        # --- Windows RU: host not found (ConsoleTab) ---
+        ("При проверке связи не удалось обнаружить узел 255.255.255.255.", ConsoleLineType.ERROR),
+        ("Проверьте имя узла и повторите попытку.", ConsoleLineType.ERROR),
+
+        # =====================
+        # WARNING
+        # =====================
         ("Lost = 1 (50% loss)", ConsoleLineType.WARNING),
         ("Потеряно = 2", ConsoleLineType.WARNING),
 
-        # --- INFO ---
+        # =====================
+        # INFO
+        # =====================
         ("Pinging google.com", ConsoleLineType.INFO),
         ("some random text", ConsoleLineType.INFO),
         ("---", ConsoleLineType.INFO),
@@ -46,11 +60,22 @@ def test_empty_string_is_info():
     assert classify_console_line("") == ConsoleLineType.INFO
 
 
-def test_none_like_text_does_not_crash():
-    # защита от случайных вызовов
-    assert classify_console_line(str(None)) == ConsoleLineType.INFO
+def test_string_none_is_info():
+    """
+    Защита от str(None) → 'None'
+    """
+    assert classify_console_line("None") == ConsoleLineType.INFO
 
 
 def test_error_has_priority_over_success():
     text = "Reply from 8.8.8.8: Destination host unreachable."
     assert classify_console_line(text) == ConsoleLineType.ERROR
+
+
+def test_system_has_priority_over_error():
+    """
+    SYSTEM сообщения не должны окрашиваться как ошибки,
+    даже если содержат слова вроде 'timeout' в статистике.
+    """
+    text = "Ping statistics: timeout info"
+    assert classify_console_line(text) == ConsoleLineType.SYSTEM

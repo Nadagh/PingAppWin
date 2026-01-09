@@ -1,43 +1,50 @@
-# application/use_cases/ping_table.py
+from typing import List, Tuple
+
+from domain import IPAddress
+from domain.value_objects.ping_result_status import PingResultStatus
 
 
-from domain import IPAddress, PingStatus
-from domain.services import status_from_exit_code
-from infrastructure import PingExecutor
+class PingExecutorPort:
+    def ping(self, ip: str) -> int:
+        raise NotImplementedError
 
 
 class PingTableUseCase:
-    """
-    Application-layer use case для PingTab.
-    Связывает Presenter ↔ Domain.
-    """
+    def prepare_ping(
+        self,
+        ip_values: List[str],
+    ) -> List[Tuple[str, PingResultStatus]]:
+        results: List[Tuple[str, PingResultStatus]] = []
 
-
-    def __init__(self) -> None:
-        self.executor = PingExecutor()
-
-
-    def prepare_ping(self, ip_values: list[str]) -> list[tuple[str, PingStatus]]:
-        results = []
-
-        for value in ip_values:
-            if not value:
-                results.append((value, PingStatus.MISSING))
+        for raw_ip in ip_values:
+            # --- пусто ---
+            if not raw_ip.strip():
+                results.append((raw_ip, PingResultStatus.MISSING_ADDRESS))
                 continue
 
+            # --- валидация ---
             try:
-                ip = IPAddress(value)
+                IPAddress(raw_ip)
             except ValueError:
-                results.append((value, PingStatus.ERROR))
+                results.append((raw_ip, PingResultStatus.INVALID_ADDRESS))
                 continue
 
+            executor = PingExecutorPort()
+
+            # --- выполнение ---
             try:
-                exit_code = self.executor.ping(ip.value, count = 1)
+                exit_code = executor.ping(raw_ip, count=1)
+
             except Exception:
-                results.append((value, PingStatus.ERROR))
+                results.append((raw_ip, PingResultStatus.ERROR))
                 continue
 
-            status = status_from_exit_code(exit_code)
-            results.append((ip.value, status))
+            # --- интерпретация ---
+            if exit_code == 0:
+                status = PingResultStatus.SUCCESS
+            else:
+                status = PingResultStatus.UNREACHABLE
+
+            results.append((raw_ip, status))
 
         return results
