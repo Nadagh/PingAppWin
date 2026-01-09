@@ -54,5 +54,9 @@ class AsyncPingTableUseCase:
                 timeout_ms=self._timeout_ms,
             )
 
-            status = analyze_ping_result(exit_code, output)
+            status = analyze_ping_result(
+                    stdout = "\n".join(output),
+                    exit_code = exit_code,
+                    )
+
             self._on_result(row, status)

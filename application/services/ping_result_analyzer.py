@@ -1,4 +1,4 @@
-from domain import PingStatus
+from domain.value_objects.ping_status import PingStatus
 
 
 UNREACHABLE_MARKERS = (
@@ -17,31 +17,28 @@ REPLY_MARKERS = (
 )
 
 
-def analyze_ping_result(exit_code: int, output: list[str]) -> PingStatus:
-    """
-    SUCCESS:
-    - есть ICMP Echo Reply от целевого узла
-    - и НЕТ ICMP Unreachable
+def analyze_ping_result(stdout: str, exit_code: int | None) -> PingStatus:
+    if exit_code is None:
+        return PingStatus.ERROR
 
-    FAILURE:
-    - есть хотя бы один ICMP Unreachable
-    - или нет reply
-    """
+    if not stdout or not stdout.strip():
+        return PingStatus.ERROR
 
     has_reply = False
 
-    for line in output:
+    for line in stdout.splitlines():
         l = line.lower()
 
-        # Любой unreachable = немедленный отказ
         if any(m in l for m in UNREACHABLE_MARKERS):
             return PingStatus.FAILURE
 
-        # Только реальный Echo Reply
         if any(m in l for m in REPLY_MARKERS):
             has_reply = True
 
     if has_reply:
         return PingStatus.SUCCESS
+
+    if exit_code == 0:
+        return PingStatus.ERROR
 
     return PingStatus.FAILURE
