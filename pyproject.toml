@@ -26,7 +26,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["*_test*.py"]
+python_files = ["*_test*.py","test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-vv -s --tb=long -l"
