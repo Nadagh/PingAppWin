@@ -1,41 +1,8 @@
 from domain.value_objects.ping_result_status import PingResultStatus
+from application.services.ping_result_markers import *
 
 
-GENERAL_FAILURE_MARKERS = (
-    "общий сбой",
-    "general failure",
-    "сбой передачи",
-)
 
-UNREACHABLE_MARKERS = (
-    "destination host unreachable",
-    "unreachable",
-    "узел недоступен",
-    "заданный узел",
-)
-
-TIMEOUT_MARKERS = (
-    "request timed out",
-    "превышен интервал ожидания",
-    "timeout waiting",
-)
-
-HOST_NOT_FOUND_MARKERS = (
-    "could not find host",
-    "не удается найти указанный узел",
-)
-
-INVALID_ADDRESS_MARKERS = (
-    "invalid ip",
-    "неверный ip",
-)
-
-ECHO_REPLY_MARKERS = (
-    "bytes=",
-    "ttl=",
-    "число байт",
-    "icmp_seq",
-)
 
 
 def analyze_ping_result(stdout: str, exit_code: int | None) -> PingResultStatus:
@@ -71,7 +38,7 @@ def analyze_ping_result(stdout: str, exit_code: int | None) -> PingResultStatus:
             timeout_count += 1
             continue
 
-        if any(m in l for m in ECHO_REPLY_MARKERS):
+        if any(m in l for m in REPLY_MARKERS):
             echo_replies += 1
 
     # ===== UNSTABLE =====
