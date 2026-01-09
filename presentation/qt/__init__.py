@@ -1,6 +1,7 @@
+# presentation/qt/__init__.py
 
-def main():
-    pass
-    
-if (__name__ == '__main__'):
-    main()
+from .app import run_app
+
+__all__ = [
+    "run_app",
+]
