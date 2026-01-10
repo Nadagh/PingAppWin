@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from application import NetworkScanUseCase
 from unittest.mock import AsyncMock
@@ -109,5 +111,41 @@ async def test_ping_exception_reported_as_dead_host(mocker):
     )
 
     assert results == [("10.0.0.1", False)]
+
+@pytest.mark.asyncio
+async def test_cancel_stops_further_execution(mocker):
+    fake_executor = mocker.AsyncMock()
+
+    # имитируем "долгий" ping
+    async def slow_ping(ip, count):
+        await asyncio.sleep(0.1)
+        return True
+
+    fake_executor.ping.side_effect = slow_ping
+
+    progress = []
+    results = []
+
+    use_case = NetworkScanUseCase(ping_executor=fake_executor)
+
+    task = asyncio.create_task(
+        use_case.execute(
+            raw_ranges="10.0.0.1-5",
+            count=1,
+            max_parallel=1,
+            on_progress=lambda d, t: progress.append((d, t)),
+            on_result=lambda ip, alive: results.append((ip, alive)),
+        )
+    )
+
+    # даём стартовать первому ping
+    await asyncio.sleep(0.05)
+    use_case.cancel()
+
+    await task
+
+    # ✔ выполнен максимум один ping
+    assert len(results) <= 1
+    assert len(progress) <= 1
 
 
